@@ -1,0 +1,68 @@
+---
+- hosts: localhost
+  vars_prompt:
+  - name: lvm_size
+    prompt: "Enter your lvm size"
+    private: false
+  - name: lvm_name
+    prompt: "Enter your lvm name"
+    private: false
+  user: root
+  tasks:
+  - name: lvcreate
+    lvol: 
+      vg: myvg
+      lv: "{{lvm_name}}"
+      size: "{{lvm_size}}"
+  - name: format 
+    command: mkfs.ext4 /dev/myvg/{{lvm_name}}
+  - name: delete
+    command: rmdir /LvCloud/{{lvm_name}}
+    ignore_errors: true
+  - name: 
+    command: mkdir -p /LvCloud/{{lvm_name}}
+  - mount:
+      path: /LvCloud/{{lvm_name}}
+      src: /dev/myvg/{{lvm_name}}
+      state: mounted
+      fstype: ext4
+  - lineinfile:
+      path: /etc/exports
+      line: /LvCloud/{{lvm_name}} *(rw,no_root_squash)
+  - command: iptables -F
+  - command: setenforce 0
+  - lineinfile: 
+      path: lvmMount.yml
+      regexp: "command: mkdir"
+      line: "    command: mkdir -p /media/{{lvm_name}}"
+  - lineinfile:
+      path: lvmMount.yml
+      regexp: "command: mount 192."
+      line: "    command: mount 192.168.43.111:/LvCloud/{{lvm_name}} /media/{{lvm_name}}"
+#  - name: lineinfile apply
+#    lineinfile: 
+#      path: lvmMount.yml
+#      regexp: "dev:"
+#      line: "      dev: /dev/myvg/{{lvm_name}}"
+#  - lineinfile: 
+#      path: lvmMount.yml
+#      regexp: "name: "
+#      line: "      name: /{{lvm_name}}"
+#  - lineinfile: 
+#      path: lvmMount.yml
+#      regexp: "src: "
+#      line: "      src: /dev/myvg/{{lvm_name}}"
+
+  - lineinfile:
+      path: lvmMount.yml
+      regexp: "regexp: "
+      line: '      regexp: "/dev/myvg/{{lvm_name}}"'
+  - lineinfile:
+      path: lvmMount.yml
+      regexp: "line: "
+      line: '      line: "/dev/myvg/{{lvm_name}} /media/{{lvm_name}} ext4 defaults,_netdev 0 0"'
+  - command: systemctl restart nfs
+  - command: lvdisplay
+    register: x
+  - debug:
+      var: x   

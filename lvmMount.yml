@@ -1,0 +1,15 @@
+- hosts: my_ip
+  tasks:
+  - name: module
+    command: mkdir -p /media/rakesh
+#  - command: systemctl start nfs
+  - command: exportfs -a
+  - name: module
+    command: mount 192.168.43.111:/LvCloud/rakesh /media/rakesh
+    register: y
+  - debug:
+      var: y
+  - lineinfile:
+      path: /etc/fstab 
+      regexp: "/dev/myvg/rakesh"
+      line: "/dev/myvg/rakesh /media/rakesh ext4 defaults,_netdev 0 0"
