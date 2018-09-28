@@ -8,7 +8,11 @@
 6) container as a service
 
 Software as a service :- This will provide client to firefox . 
+
 Storage as a srvice : - client can request for storage through Browser and can get storage whatever he requested .
+
 Platform as a service: Python36 , python2 like platform would be provide to Client .
+
 Container as a service : - Caas is used into give client to terminal on  browser he can use terminal into browser . 
-Bloack storage as a service :-  Used into give storage through pendrive .  
+
+Block storage as a service :-  Used into give storage through pendrive .  
